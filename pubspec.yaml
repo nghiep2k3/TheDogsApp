@@ -43,7 +43,7 @@ dependencies:
   carousel_slider: ^4.2.1
   searchable_text: ^0.0.5
   path_provider: ^2.1.2
-
+  http: ^0.13.3
 dev_dependencies:
   flutter_test:
     sdk: flutter
