@@ -25,7 +25,8 @@ class _MyApp2State extends State<MyApp2> {
   Future<void> fetchData() async {
     const apiKey = 'DEMO-API-KEY';
     final response = await http.get(
-      Uri.parse('https://api.thecatapi.com/v1/breeds?limit=2&page=0'),
+      Uri.parse(
+          'https://api.thecatapi.com/v1/images/search?size=med&mime_types=jpg&format=json&has_breeds=true&order=RANDOM&page=0&limit=5'),
       headers: {'x-api-key': apiKey},
     );
     if (response.statusCode == 200) {
@@ -38,6 +39,13 @@ class _MyApp2State extends State<MyApp2> {
     }
   }
 
+  Future<void> _refreshData() async {
+    setState(() {
+      _isLoading = true; // Đặt trạng thái đang tải thành true khi bắt đầu load lại dữ liệu
+    });
+    await fetchData(); // Gọi lại fetchData() để tải lại dữ liệu
+  }
+
   @override
   Widget build(BuildContext context) {
     return Consumer<UserInterface>(builder: (context, ui, child) {
@@ -47,17 +55,39 @@ class _MyApp2State extends State<MyApp2> {
           centerTitle: true,
           backgroundColor: ui.appBarColor,
         ),
-        body: _isLoading // Kiểm tra trạng thái đang tải
-            ? Center(child: CircularProgressIndicator()) // Nếu đang tải, hiển thị CircularProgress
-            : ListView.builder(
-                itemCount: _data.length,
-                itemBuilder: (BuildContext context, int index) {
-                  return ListTile(
-                    title: Text(_data[index]['name']),
-                    subtitle: Text(_data[index]['description']),
-                  );
-                },
-              ),
+        body: RefreshIndicator(
+          onRefresh: _refreshData, // Gọi _refreshData() khi kéo xuống để làm mới trang
+          child: _isLoading // Kiểm tra trạng thái đang tải
+              ? const Center(
+                  child: CircularProgressIndicator(),
+                ) // Nếu đang tải, hiển thị CircularProgress
+              : ListView.builder(
+                  itemCount: _data.length,
+                  itemBuilder: (BuildContext context, int index) {
+                    final imageUrl = _data[index]['url'];
+                    final breedName = _data[index]['breeds'][0]['name']; // Lấy thuộc tính "name" từ phần tử đầu tiên trong mảng "breeds"
+                    return ListTile(
+                      title: Text(breedName),
+                      subtitle: Column(
+                        children: [
+                          Text('URL: $imageUrl'),
+                          Container(
+                            width: 400,
+                            height: 400,
+                            child: Align(
+                              alignment: Alignment.center,
+                              child: Image.network(
+                                imageUrl,
+                                fit: BoxFit.cover,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                ),
+        ),
       );
     });
   }
