@@ -15,14 +15,14 @@ class MyDrawer extends StatelessWidget {
           ),
           ListTile(
             leading: const Icon(Icons.manage_accounts),
-            title: const Text("..."),
-            onTap: () => Navigator.of(context).popAndPushNamed("/quanly"),
+            title: const Text("Thông tin các loài chó"),
+            onTap: () => Navigator.of(context).popAndPushNamed("/infodogs"),
           ),
           ListTile(
             leading: const Icon(Icons.newspaper),
-            title: const Text("..."),
+            title: const Text("Search"),
             onTap: () =>
-                Navigator.of(context).popAndPushNamed("/quanly_tintuc"),
+                Navigator.of(context).popAndPushNamed("/search"),
           ),
           ListTile(
             leading: const Icon(Icons.library_books),

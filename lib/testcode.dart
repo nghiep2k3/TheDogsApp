@@ -26,7 +26,7 @@ class _MyApp2State extends State<MyApp2> {
     const apiKey = 'DEMO-API-KEY';
     final response = await http.get(
       Uri.parse(
-          'https://api.thecatapi.com/v1/images/search?size=med&mime_types=jpg&format=json&has_breeds=true&order=RANDOM&page=0&limit=5'),
+          'https://api.thedogapi.com/v1/images/search?size=med&mime_types=jpg&format=json&has_breeds=true&order=ASC&page=0&limit=25&include_breeds=1'),
       headers: {'x-api-key': apiKey},
     );
     if (response.statusCode == 200) {
