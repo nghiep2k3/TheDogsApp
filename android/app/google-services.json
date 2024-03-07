@@ -1,0 +1,49 @@
+{
+  "project_info": {
+    "project_number": "535748379503",
+    "firebase_url": "https://flutter-218e8-default-rtdb.firebaseio.com",
+    "project_id": "flutter-218e8",
+    "storage_bucket": "flutter-218e8.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:535748379503:android:3928d77e126719eabf9e9a",
+        "android_client_info": {
+          "package_name": "com.example.testfb"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCS_ZQEmoELru-nnwn6zBvNYvOl4aYkSBo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:535748379503:android:dcff86b01d42e3d1bf9e9a",
+        "android_client_info": {
+          "package_name": "com.example.thedogs"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCS_ZQEmoELru-nnwn6zBvNYvOl4aYkSBo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
