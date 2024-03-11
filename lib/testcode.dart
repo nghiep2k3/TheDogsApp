@@ -1,9 +1,36 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:thedogs/models/user_interface.dart';
 import 'package:http/http.dart' as http;
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+
+class Dog {
+  final String name;
+  final String id;
+  final String imageUrl;
+  final String lifeSpan;
+  final String weight;
+  final String height;
+
+  Dog({
+    required this.name,
+    required this.id,
+    required this.imageUrl,
+    required this.lifeSpan,
+    required this.weight,
+    required this.height,
+  });
+
+  factory Dog.fromJson(Map<String, dynamic> json) {
+    return Dog(
+      name: json['breeds'][0]['name'],
+      id: json['id'],
+      imageUrl: json['url'],
+      lifeSpan: json['breeds'][0]['life_span'],
+      weight: json['breeds'][0]['weight']['metric'],
+      height: json['breeds'][0]['height']['metric'],
+    );
+  }
+}
 
 class MyApp2 extends StatefulWidget {
   const MyApp2({Key? key}) : super(key: key);
@@ -13,8 +40,13 @@ class MyApp2 extends StatefulWidget {
 }
 
 class _MyApp2State extends State<MyApp2> {
-  List<dynamic> _data = [];
-  bool _isLoading = true; // Biến đánh dấu trạng thái đang tải
+  List<Dog> _dogs = [];
+  List<Dog> _filteredDogs = [];
+  final TextEditingController _searchController = TextEditingController();
+  bool _isLoading = true;
+  int _page = 0;
+  int _limit = 6;
+  int likeCount = 1;
 
   @override
   void initState() {
@@ -23,72 +55,270 @@ class _MyApp2State extends State<MyApp2> {
   }
 
   Future<void> fetchData() async {
-    const apiKey = 'DEMO-API-KEY';
+    const apiKey =
+        'live_K9uSZYz4F58HqbFbcoxswpRHd2INjIkoNyiUjDcOMLsxE6Mr56RzgBPSrJ8b1l5A';
     final response = await http.get(
       Uri.parse(
-          'https://api.thedogapi.com/v1/images/search?size=med&mime_types=jpg&format=json&has_breeds=true&order=ASC&page=0&limit=25&include_breeds=1'),
+          'https://api.thedogapi.com/v1/images/search?size=med&mime_types=jpg&format=json&has_breeds=true&order=ASC&page=$_page&limit=$_limit&include_breeds=1'),
       headers: {'x-api-key': apiKey},
     );
     if (response.statusCode == 200) {
+      List<dynamic> data = json.decode(response.body);
       setState(() {
-        _data = json.decode(response.body);
-        _isLoading = false; // Khi đã có dữ liệu, đặt trạng thái đang tải thành false
+        _dogs = data.map((dogData) => Dog.fromJson(dogData)).toList();
+        _filteredDogs = _dogs;
+        _isLoading = false; // Kết thúc tải dữ liệu
       });
     } else {
       throw Exception('Failed to load breeds');
     }
   }
 
-  Future<void> _refreshData() async {
+  void _filterDogs(String query) {
     setState(() {
-      _isLoading = true; // Đặt trạng thái đang tải thành true khi bắt đầu load lại dữ liệu
+      _filteredDogs = query.isEmpty
+          ? _dogs
+          : _dogs
+              .where(
+                  (dog) => dog.name.toLowerCase().contains(query.toLowerCase()))
+              .toList();
     });
-    await fetchData(); // Gọi lại fetchData() để tải lại dữ liệu
+  }
+
+  void _showDogDetails(Dog dog) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(
+            '${dog.name}',
+            textAlign: TextAlign.center,
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Image.network(dog.imageUrl),
+              Text('Mã : ${dog.id}'),
+              Text('Tuổi thọ: ${dog.lifeSpan}'),
+              Text('Chiều cao: ${dog.height} cm'),
+              Text('Cân nặng: ${dog.weight} kg'),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('Đóng'),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<UserInterface>(builder: (context, ui, child) {
-      return Scaffold(
-        appBar: AppBar(
-          title: const Text('Nhà phát triển'),
-          centerTitle: true,
-          backgroundColor: ui.appBarColor,
-        ),
-        body: RefreshIndicator(
-          onRefresh: _refreshData, // Gọi _refreshData() khi kéo xuống để làm mới trang
-          child: _isLoading // Kiểm tra trạng thái đang tải
-              ? const Center(
-                  child: CircularProgressIndicator(),
-                ) // Nếu đang tải, hiển thị CircularProgress
-              : ListView.builder(
-                  itemCount: _data.length,
-                  itemBuilder: (BuildContext context, int index) {
-                    final imageUrl = _data[index]['url'];
-                    final breedName = _data[index]['breeds'][0]['name']; // Lấy thuộc tính "name" từ phần tử đầu tiên trong mảng "breeds"
-                    return ListTile(
-                      title: Text(breedName),
-                      subtitle: Column(
-                        children: [
-                          Text('URL: $imageUrl'),
-                          Container(
-                            width: 400,
-                            height: 400,
-                            child: Align(
-                              alignment: Alignment.center,
-                              child: Image.network(
-                                imageUrl,
-                                fit: BoxFit.cover,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    );
-                  },
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.green,
+        title: const Text('Thông tin các loại chó'),
+        centerTitle: true,
+      ),
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: TextField(
+              controller: _searchController,
+              onChanged: _filterDogs,
+              decoration: InputDecoration(
+                labelText: 'Tìm kiếm',
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12.0),
                 ),
+                prefixIcon: const Icon(Icons.search),
+              ),
+            ),
+          ),
+          Expanded(
+            child: _isLoading
+                ? const Center(
+                    child:
+                        CircularProgressIndicator(), // Hiển thị nút quay tròn khi đang tải dữ liệu
+                  )
+                : ListView.builder(
+                    itemBuilder: (BuildContext context, int index) {
+                      final dog = _filteredDogs[index];
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 8.0, horizontal: 16.0),
+                        child: Container(
+                          width: double.infinity, // Khung có chiều ngang tối đa
+                          decoration: BoxDecoration(
+                            border: Border.all(color: Colors.grey),
+                            borderRadius: BorderRadius.circular(5.0),
+                          ),
+                          child: Column(
+                            children: [
+                              ClipRRect(
+                                borderRadius: const BorderRadius.only(
+                                  topLeft: Radius.circular(4.0),
+                                  topRight: Radius.circular(4.0),
+                                ),
+                                child: Image.network(
+                                  dog.imageUrl, // Đường dẫn đến ảnh của chó
+                                  fit: BoxFit
+                                      .fill, // Ảnh sẽ lấp đầy khung theo chiều ngang
+                                ),
+                              ),
+                              const SizedBox(
+                                  height: 10), // Khoảng cách giữa ảnh và tên
+                              Text(
+                                "Name: ${dog.name}", // Tên của chó
+                                style: const TextStyle(fontSize: 18),
+                                textAlign: TextAlign.center, // Căn giữa tên
+                              ),
+                              const SizedBox(height: 10),
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceAround,
+                                children: [
+                                  TextButton(
+                                    onPressed: () {
+                                      setState(() {
+                                        // Xử lý sự kiện khi người dùng nhấn vào nút "Vote"
+                                        // Tạm thời chỉ tăng số lượt thích ở giao diện, không lưu vào cơ sở dữ liệu
+                                        likeCount++; // Tăng số lượt thích của chó lên 1
+                                      });
+                                    },
+                                    child: Column(
+                                      children: [
+                                        Stack(
+                                          alignment: Alignment.center,
+                                          children: [
+                                            const FaIcon(
+                                              FontAwesomeIcons.heart,
+                                              color: Colors.red,
+                                              size: 27,
+                                            ),
+                                            Text(
+                                              '${likeCount}', // Hiển thị số lượt thích của chó
+                                              style: const TextStyle(
+                                                color: Colors.red,
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 12,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        const SizedBox(
+                                            height:
+                                                5), // Khoảng cách giữa biểu tượng và chữ
+                                        const Text("Vote"),
+                                      ],
+                                    ),
+                                  ),
+                                  TextButton(
+                                    onPressed: () {
+                                      // Xử lý sự kiện khi nhấn vào nút "Favourites"
+                                    },
+                                    child: const Column(
+                                      children: [
+                                        FaIcon(
+                                          FontAwesomeIcons.bookmark,
+                                          color: Colors.blue,
+                                          size: 25,
+                                        ),
+                                        SizedBox(
+                                            height:
+                                                5), // Khoảng cách giữa biểu tượng và chữ
+                                        Text("Favourites"),
+                                      ],
+                                    ),
+                                  ),
+                                  TextButton(
+                                    onPressed: () {
+                                      _showDogDetails(
+                                          dog); // Hiển thị thông tin chi tiết khi nhấn vào nút "Chi tiết"
+                                    },
+                                    child: const Column(
+                                      children: [
+                                        FaIcon(
+                                          FontAwesomeIcons.circleInfo,
+                                          color: Colors.blue,
+                                          size: 25,
+                                        ),
+                                        SizedBox(
+                                            height:
+                                                5), // Khoảng cách giữa biểu tượng và chữ
+                                        Text("Chi tiết"),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              // Khoảng cách giữa tên và ID
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                    itemCount: _filteredDogs.length,
+                  ),
+          ),
+        ],
+      ),
+      //điều hướng ở dưới
+      bottomNavigationBar: BottomAppBar(
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            IconButton(
+              onPressed: () {
+                setState(() {
+                  if (_page > 0) {
+                    _isLoading = true;
+                    _page--; // Giảm trang nếu trang hiện tại lớn hơn 0
+                    fetchData(); // Tải dữ liệu mới
+                  }
+                });
+              },
+              icon: const Icon(Icons.arrow_back),
+            ),
+            Text('Trang: ${_page + 1}'),
+            IconButton(
+              onPressed: () {
+                setState(() {
+                  _page++; // Tăng trang
+                  _isLoading =
+                      true; // Cập nhật giá trị của _isLoading thành true
+                  fetchData(); // Tải dữ liệu mới
+                });
+              },
+              icon: const Icon(Icons.arrow_forward),
+            ),
+            DropdownButton<int>(
+              value: _limit,
+              items: List.generate(
+                10,
+                (index) => DropdownMenuItem<int>(
+                  value: index + 1,
+                  child: Text((index + 1).toString()),
+                ),
+              ),
+              onChanged: (int? value) {
+                setState(() {
+                  _isLoading = true;
+                  _limit = value!;
+                  fetchData(); // Tải dữ liệu mới với limit mới
+                });
+              },
+            ),
+          ],
         ),
-      );
-    });
+      ),
+    );
   }
 }
