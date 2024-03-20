@@ -48,6 +48,8 @@ class _MyApp2State extends State<MyApp2> {
   int _limit = 6;
   int likeCount = 1;
 
+  String apiKey = 'live_K9uSZYz4F58HqbFbcoxswpRHd2INjIkoNyiUjDcOMLsxE6Mr56RzgBPSrJ8b1l5A';
+
   @override
   void initState() {
     super.initState();
@@ -55,8 +57,7 @@ class _MyApp2State extends State<MyApp2> {
   }
 
   Future<void> fetchData() async {
-    const apiKey =
-        'live_K9uSZYz4F58HqbFbcoxswpRHd2INjIkoNyiUjDcOMLsxE6Mr56RzgBPSrJ8b1l5A';
+    // const Key = apiKey;
     final response = await http.get(
       Uri.parse(
           'https://api.thedogapi.com/v1/images/search?size=med&mime_types=jpg&format=json&has_breeds=true&order=ASC&page=$_page&limit=$_limit&include_breeds=1'),
@@ -85,6 +86,38 @@ class _MyApp2State extends State<MyApp2> {
     });
   }
 
+  // post data
+  void _addToFavorites(String imageId) async {
+  const subId = 'anh nghiep dep trai 123';
+
+  final Map<String, dynamic> data = {
+    'image_id': imageId,
+    'sub_id': subId,
+  };
+
+  final Uri uri = Uri.parse('https://api.thedogapi.com/v1/favourites');
+
+  final http.Response response = await http.post(
+    uri,
+    headers: {
+      'x-api-key': apiKey,
+      'Content-Type': 'application/json',
+    },
+    body: json.encode(data),
+  );
+
+  if (response.statusCode == 200) {
+    // Xử lý khi yêu cầu thành công
+    print('Thêm vào mục yêu thích thành công');
+  } else {
+    // Xử lý khi yêu cầu thất bại
+    print('Thêm vào mục yêu thích thất bại. Mã lỗi: ${response.statusCode}');
+  }
+}
+
+
+
+  // hiển thị chi tiết thông tin
   void _showDogDetails(Dog dog) {
     showDialog(
       context: context,
@@ -117,6 +150,7 @@ class _MyApp2State extends State<MyApp2> {
       },
     );
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -222,7 +256,9 @@ class _MyApp2State extends State<MyApp2> {
                                   ),
                                   TextButton(
                                     onPressed: () {
-                                      // Xử lý sự kiện khi nhấn vào nút "Favourites"
+                                      print(dog.id);
+                                      _addToFavorites(dog.id);
+                                      //call api - post
                                     },
                                     child: const Column(
                                       children: [
