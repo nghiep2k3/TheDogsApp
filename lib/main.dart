@@ -1,5 +1,7 @@
 import 'dart:io';
 import 'package:thedogs/testcode.dart';
+import 'package:thedogs/widgets/Action/breed_group.dart';
+import 'package:thedogs/widgets/content.dart';
 import 'package:thedogs/widgets/login.dart';
 import 'package:thedogs/widgets/register.dart';
 import 'package:thedogs/widgets/settings.dart';
@@ -29,15 +31,20 @@ Future<void> main() async {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
+
+
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
       create: (context) => UserInterface(),
       child: MaterialApp(
           debugShowCheckedModeBanner: false,
-          initialRoute: "/",
+          initialRoute: "/breed",
           routes: {
+            
             "/": (context) => const MyHomePage(),
+            "/breed" : (context) => BreedGroupScreen(),
+            "/content": (context) => MyContent(),
             "/register": (context) => MyRegister(),
             "/login": (context) => MyLogin(),
             "/settings": (context) => MySettings(),
