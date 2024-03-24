@@ -106,11 +106,26 @@ class _MyApp2State extends State<MyApp2> {
     body: json.encode(data),
   );
 
-  if (response.statusCode == 200) {
+   if (response.statusCode == 200) {
     // Xử lý khi yêu cầu thành công
     print('Thêm vào mục yêu thích thành công');
+    
+    // Hiển thị snackbar
+    // ignore: use_build_context_synchronously
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Cập nhật thành công'),
+        backgroundColor: Colors.green,
+      ),
+    );
   } else {
     // Xử lý khi yêu cầu thất bại
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Đã có trong danh sách yêu thích'),
+        backgroundColor: Colors.red,
+      ),
+    );
     print('Thêm vào mục yêu thích thất bại. Mã lỗi: ${response.statusCode}');
   }
 }
