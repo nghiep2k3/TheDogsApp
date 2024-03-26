@@ -2,6 +2,8 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 
 class Dog {
   final String name;
@@ -28,6 +30,27 @@ class Dog {
       lifeSpan: json['breeds'][0]['life_span'],
       weight: json['breeds'][0]['weight']['metric'],
       height: json['breeds'][0]['height']['metric'],
+    );
+  }
+}
+
+class Favorite {
+  String userId;
+  String dogId;
+
+  Favorite({required this.userId, required this.dogId});
+
+  Map<String, dynamic> toJson() {
+    return {
+      'userId': userId,
+      'dogId': dogId,
+    };
+  }
+
+  static Favorite fromJson(Map<String, dynamic> json) {
+    return Favorite(
+      userId: json['userId'],
+      dogId: json['dogId'],
     );
   }
 }
@@ -86,49 +109,49 @@ class _MyApp2State extends State<MyApp2> {
     });
   }
 
+
+
   // post data
-  void _addToFavorites(String imageId) async {
-  const subId = 'anh nghiep dep trai 123';
+  Future<void> _addToFavorites(String dogId) async {
+    final FirebaseAuth auth = FirebaseAuth.instance;
 
-  final Map<String, dynamic> data = {
-    'image_id': imageId,
-    'sub_id': subId,
-  };
+    // Kiểm tra người dùng đã đăng nhập
+    final User? user = auth.currentUser;
+    if (user == null) {
+      // Hiển thị thông báo yêu cầu đăng nhập
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Bạn cần phải đăng nhập.'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
 
-  final Uri uri = Uri.parse('https://api.thedogapi.com/v1/favourites');
+    // Tạo một đối tượng yêu thích và lưu vào Firestore
+    final favorite = Favorite(userId: user.uid, dogId: dogId);
+    final CollectionReference favorites =
+    FirebaseFirestore.instance.collection('favorites');
 
-  final http.Response response = await http.post(
-    uri,
-    headers: {
-      'x-api-key': apiKey,
-      'Content-Type': 'application/json',
-    },
-    body: json.encode(data),
-  );
+    // Thêm vào database
+    await favorites.add(favorite.toJson()).catchError((error) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Lỗi khi lưu vào yêu thích: $error'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    });
 
-   if (response.statusCode == 200) {
-    // Xử lý khi yêu cầu thành công
-    print('Thêm vào mục yêu thích thành công');
-    
-    // Hiển thị snackbar
-    // ignore: use_build_context_synchronously
+    // Hiển thị thông báo thành công
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Cập nhật thành công'),
+      SnackBar(
+        content: Text('Đã thêm vào danh sách yêu thích.'),
         backgroundColor: Colors.green,
       ),
     );
-  } else {
-    // Xử lý khi yêu cầu thất bại
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Đã có trong danh sách yêu thích'),
-        backgroundColor: Colors.red,
-      ),
-    );
-    print('Thêm vào mục yêu thích thất bại. Mã lỗi: ${response.statusCode}');
   }
-}
+
 
 
 
@@ -273,8 +296,8 @@ class _MyApp2State extends State<MyApp2> {
                                     onPressed: () {
                                       print(dog.id);
                                       _addToFavorites(dog.id);
-                                      //call api - post
                                     },
+                                    //call api - post
                                     child: const Column(
                                       children: [
                                         FaIcon(

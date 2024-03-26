@@ -29,6 +29,11 @@ class _MyRegisterState extends State<MyRegister> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 SizedBox(height: 20),
+                Icon(
+                  Icons.account_box,
+                  size: 120,
+                  color: Colors.deepPurpleAccent,
+                ),
                 TextFormField( // Sử dụng TextFormField thay vì TextField
                   controller: _emailController,
                   decoration: InputDecoration(

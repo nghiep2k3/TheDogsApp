@@ -82,6 +82,8 @@ class _InfoDogsState extends State<InfoDogs> {
     });
   }
 
+
+
   void _showDogDetails(Dog dog) {
     showDialog(
       context: context,

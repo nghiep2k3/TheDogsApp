@@ -50,7 +50,7 @@ class MyApp extends StatelessWidget {
             "/register": (context) => MyRegister(),
             "/login": (context) => MyLogin(),
             "/settings": (context) => MySettings(),
-            "/favorite": (context) => Favorite(),
+            "/favorite": (context) => Favorite1(),
             "/testcode": (context) => const MyApp2(),
           }),
     );
