@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+
 
 class Dog {
   final String name;
@@ -20,6 +22,17 @@ class Dog {
     required this.weight,
     required this.height,
   });
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'name': name,
+      'lifeSpan': lifeSpan,
+      'height': height,
+      'weight': weight,
+      'imageUrl': imageUrl,
+    };
+  }
 
   factory Dog.fromJson(Map<String, dynamic> json) {
     return Dog(
@@ -88,17 +101,18 @@ class _MyApp2State extends State<MyApp2> {
   }
 
   // post data
-  void _addToFavorites(String imageId) async {
-    FirebaseFirestore.instance.collection('favorites').add({
-      'dogId': imageId,
-      'userId': imageId,
-    }).then((value) {
+  void _addToFavorites(Dog dog) async {
+    String userUID = FirebaseAuth.instance.currentUser!.uid;
+
+    FirebaseFirestore.instance.collection('users').doc(userUID).collection('favorites').add(dog.toJson())
+        .then((value) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Cocktail added to favourite cocktail')),
+        SnackBar(content: Text('Added to Favorites')),
       );
-    }).catchError((error) {
+    })
+        .catchError((error) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to add cocktail: $error')),
+        SnackBar(content: Text('Failed to add to favorites: $error')),
       );
     });
   }
@@ -244,8 +258,8 @@ class _MyApp2State extends State<MyApp2> {
                             ),
                             TextButton(
                               onPressed: () {
-                                print(dog.id);
-                                _addToFavorites(dog.id);
+                                print(dog);
+                                _addToFavorites(dog);
                                 //call api - post
                               },
                               child: const Column(
