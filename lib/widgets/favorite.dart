@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:thedogs/testcode.dart'; // Giả định này chứa định nghĩa của Dog và Dog.fromJson
 import 'package:firebase_auth/firebase_auth.dart';
 
 class FavoritesDogsPage extends StatefulWidget {
@@ -8,99 +7,175 @@ class FavoritesDogsPage extends StatefulWidget {
   _FavoritesDogsPageState createState() => _FavoritesDogsPageState();
 }
 
+
+
 class _FavoritesDogsPageState extends State<FavoritesDogsPage> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseFirestore db = FirebaseFirestore.instance;
 
-  // Phương thức xóa một loài chó từ favorites
-  void _removeDogFromFirestore(String docId) {
+  Future<void> _removeDogFromFirestore(String dogId) async {
     User? user = _auth.currentUser;
     if (user != null) {
-      FirebaseFirestore.instance
-          .collection('users')
-          .doc(user.uid)
-          .collection('favorites')
-          .doc(docId)
-          .delete()
-          .then((_) => print('Document deleted'))
-          .catchError((error) => print('Delete failed: $error'));
+      DocumentReference dogRef = db.collection('users').doc(user.uid).collection('favorites').doc(dogId);
+
+      dogRef.delete().then(
+              (doc) {
+            print("Dog removed from favorites.");
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Dog with ID: $dogId has been successfully removed from favorites')),
+            );
+          },
+          onError: (e) {
+            print("Error removing dog: $e");
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Error removing dog with ID: $dogId')),
+            );
+          }
+      );
+    } else {
+      print('User is not logged in');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('You need to be logged in to remove a dog from favorites')),
+      );
     }
+  }
+
+
+
+
+
+  Future<List<Map<String, dynamic>>> _getFavoritesDogs() async {
+    User? user = _auth.currentUser;
+    if (user == null) throw Exception('User not logged in');
+    QuerySnapshot querySnapshot =
+    await db.collection('users').doc(user.uid).collection('favorites').get();
+    return querySnapshot.docs.map((doc) => doc.data() as Map<String, dynamic>).toList();
   }
 
   @override
   Widget build(BuildContext context) {
-    User? user = _auth.currentUser;
-    if (user == null) {
-      return Scaffold(
-        appBar: AppBar(
-          title: Text('Danh sách chó yêu thích'),
-          centerTitle: true,
-        ),
-        body: Center(
-          child: Text('Bạn cần đăng nhập để xem yêu thích.'),
-        ),
-      );
-    }
-
     return Scaffold(
       appBar: AppBar(
-        title: Text('Danh sách  ${user.displayName ?? 'Người dùng'}'),
-        centerTitle: true,
+        title: Text('Favorites Dogs List'),
       ),
-      body: StreamBuilder<QuerySnapshot>(
-        stream: FirebaseFirestore.instance
-            .collection('users')
-            .doc(user.uid)
-            .collection('favorites')
-            .snapshots(),
+      body: FutureBuilder<List<Map<String, dynamic>>>(
+        future: _getFavoritesDogs(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Center(child: CircularProgressIndicator());
           }
+
           if (snapshot.hasError) {
             return Center(child: Text('Error: ${snapshot.error}'));
           }
-          if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-            return Center(child: Text('Không có chó yêu thích nào được tìm thấy'));
+
+          if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            return Center(child: Text('No favorite dogs found.'));
           }
 
-          return ListView(
-            children: snapshot.data!.docs.map((DocumentSnapshot document) {
-              final dynamic data = document.data();
-              if (data is Map<String, dynamic>) {
-                Dog dog;
-                try {
-                  dog = Dog.fromJson(data);
-                } catch (e) {
-                  print('Error parsing Dog data: $e');
-                  return SizedBox.shrink(); // trả về widget trống nếu parse lỗi
-                }
+          List<Map<String, dynamic>> dogsList = snapshot.data!;
 
-                return Dismissible(
-                  key: Key(document.id),
-                  onDismissed: (direction) {
-                    _removeDogFromFirestore(document.id);
-                  },
-                  background: Container(
-                    color: Colors.red,
-                    alignment: Alignment.centerRight,
-                    padding: EdgeInsets.only(right: 20.0),
-                    child: Icon(Icons.delete, color: Colors.white),
-                  ),
-                  child: ListTile(
-                    leading: CircleAvatar(
-                      backgroundImage: NetworkImage(dog.imageUrl ?? ''), // Kiểm tra null cho imageUrl
+          return ListView.builder(
+            itemCount: dogsList.length,
+            itemBuilder: (context, index) {
+              Map<String, dynamic> dogData = dogsList[index];
+              Dog dog = Dog.fromJson(dogData);
+
+              return Dismissible(
+                key: Key(dog.id), // Đảm bảo rằng key là duy nhất cho mỗi item.
+                direction: DismissDirection.endToStart,
+                onDismissed: (direction) async {
+                  await _removeDogFromFirestore(dog.id); // Xóa chó khỏi Firestore.
+                  setState(() {
+                    dogsList.removeAt(index); // Xóa chó khỏi danh sách được hiển thị.
+                  });
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Removed ${dog.name} from favorites'),
+                      duration: Duration(seconds: 2),
                     ),
-                    title: Text(dog.name ?? 'Unknown'), // Kiểm tra null cho name
-                    subtitle: Text(dog.lifeSpan ?? 'Unknown'), // Kiểm tra null cho lifeSpan
+                  );
+                },
+                background: Container(
+                  color: Colors.blueAccent,
+                  padding: EdgeInsets.symmetric(horizontal: 20),
+                  alignment: AlignmentDirectional.centerEnd,
+                  child: Icon(Icons.delete, color: Colors.white),
+                ),
+                child: Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Column(
+                      children: <Widget>[
+                        ListTile(
+                          leading: CircleAvatar(
+                            backgroundImage: NetworkImage(dog.imageUrl),
+                          ),
+                          title: Text(dog.name),
+                          subtitle: Text('ID: ${dog.id}'),
+
+                        ),
+                        Row(
+                          children: [
+                            Icon(Icons.hourglass_full),
+                            SizedBox(width: 8),
+                            Text('Life Span: ${dog.lifeSpan}'),
+                          ],
+                        ),
+                        Row(
+                          children: [
+                            Icon(Icons.monitor_weight_outlined),
+                            SizedBox(width: 8),
+                            Text('Weight: ${dog.weight}'),
+                          ],
+                        ),
+                        Row(
+                          children: [
+                            Icon(Icons.height),
+                            SizedBox(width: 8),
+                            Text('Height: ${dog.height}'),
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
-                );
-              } else {
-                return Center(child: Text('Dữ liệu không hợp lệ'));
-              }
-            }).toList(),
+                ),
+
+              );
+            },
           );
+
         },
       ),
+    );
+  }
+}
+
+class Dog {
+  final String id;
+  final String name;
+  final String imageUrl;
+  final String lifeSpan;
+  final String weight;
+  final String height;
+
+  Dog({
+    required this.id,
+    required this.name,
+    required this.imageUrl,
+    required this.lifeSpan,
+    required this.weight,
+    required this.height,
+  });
+
+  factory Dog.fromJson(Map<String, dynamic> json) {
+    return Dog(
+      id: json['id'] ?? '',
+      name: json['name'] ?? '',
+      imageUrl: json['imageUrl'] ?? '',
+      lifeSpan: json['lifeSpan'] ?? '',
+      weight: json['weight'] ?? '',
+      height: json['height'] ?? '',
     );
   }
 }

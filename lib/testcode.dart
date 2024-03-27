@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:thedogs/widgets/Action/Chi_tiet.dart';
 
 
 class Dog {
@@ -121,37 +122,9 @@ class _MyApp2State extends State<MyApp2> {
 
   // hiển thị chi tiết thông tin
   void _showDogDetails(Dog dog) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text(
-            '${dog.name}',
-            textAlign: TextAlign.center,
-          ),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Image.network(dog.imageUrl),
-              Text('Mã : ${dog.id}'),
-              Text('Tuổi thọ: ${dog.lifeSpan}'),
-              Text('Chiều cao: ${dog.height} cm'),
-              Text('Cân nặng: ${dog.weight} kg'),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text('Đóng'),
-            ),
-          ],
-        );
-      },
-    );
+
   }
+
 
 
   @override
@@ -278,8 +251,7 @@ class _MyApp2State extends State<MyApp2> {
                             ),
                             TextButton(
                               onPressed: () {
-                                _showDogDetails(
-                                    dog); // Hiển thị thông tin chi tiết khi nhấn vào nút "Chi tiết"
+                                showDogDetails(context, dog); // Hiển thị thông tin chi tiết khi nhấn vào nút "Chi tiết"
                               },
                               child: const Column(
                                 children: [
