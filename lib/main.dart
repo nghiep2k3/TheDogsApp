@@ -42,7 +42,7 @@ class MyApp extends StatelessWidget {
       create: (context) => UserInterface(),
       child: MaterialApp(
           debugShowCheckedModeBanner: false,
-          initialRoute: "/start",
+          initialRoute: "/",
           routes: {
             "/": (context) => MyContent(),
             "/start": (context) =>  SlideshowPage(),
@@ -50,8 +50,9 @@ class MyApp extends StatelessWidget {
             "/register": (context) => MyRegister(),
             "/login": (context) => MyLogin(),
             "/settings": (context) => MySettings(),
-            "/favorite": (context) => Favorite1(),
+            "/favorite": (context) => FavoritesDogsPage(),
             "/testcode": (context) => const MyApp2(),
+
           }),
     );
   }
