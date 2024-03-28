@@ -262,7 +262,7 @@ class _MyApp2State extends State<MyApp2> {
                                         SizedBox(
                                             height:
                                                 5), // Khoảng cách giữa biểu tượng và chữ
-                                        Text("Chi tiết"),
+                                        Text("Chi tiết" ),
                                       ],
                                     ),
                                   ),
