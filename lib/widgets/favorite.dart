@@ -13,32 +13,33 @@ class _FavoritesDogsPageState extends State<FavoritesDogsPage> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore db = FirebaseFirestore.instance;
 
-  Future<void> _removeDogFromFirestore(String dogId) async {
-    User? user = _auth.currentUser;
-    if (user != null) {
-      DocumentReference dogRef = db.collection('users').doc(user.uid).collection('favorites').doc(dogId);
+  Future<void> _removeDogFromFirestore(String docId) async {
 
-      dogRef.delete().then(
-              (doc) {
-            print("Dog removed from favorites.");
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('Dog with ID: $dogId has been successfully removed from favorites')),
-            );
-          },
-          onError: (e) {
-            print("Error removing dog: $e");
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('Error removing dog with ID: $dogId')),
-            );
-          }
-      );
-    } else {
-      print('User is not logged in');
+    User? user = _auth.currentUser;
+    if (user == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('You need to be logged in to remove a dog from favorites')),
+        SnackBar(content: Text('You must be logged in to remove favorites')),
+      );
+      return;
+    }
+    try {
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(user.uid)
+          .collection(docId) // Sử dụng docId được truyền vào để xác định document cần xóa.
+          .delete();
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Meal successfully removed from favorites')),
+      );
+    } catch (error) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to remove meal: $error')),
       );
     }
   }
+
+
 
 
 
@@ -85,7 +86,7 @@ class _FavoritesDogsPageState extends State<FavoritesDogsPage> {
                 key: Key(dog.id), // Đảm bảo rằng key là duy nhất cho mỗi item.
                 direction: DismissDirection.endToStart,
                 onDismissed: (direction) async {
-                  await _removeDogFromFirestore(dog.id); // Xóa chó khỏi Firestore.
+                  await _removeDogFromFirestore(dog.id); // Giả định rằng dog.id là ID của document.
                   setState(() {
                     dogsList.removeAt(index); // Xóa chó khỏi danh sách được hiển thị.
                   });
@@ -95,7 +96,7 @@ class _FavoritesDogsPageState extends State<FavoritesDogsPage> {
                       duration: Duration(seconds: 2),
                     ),
                   );
-                },
+    },
                 background: Container(
                   color: Colors.blueAccent,
                   padding: EdgeInsets.symmetric(horizontal: 20),
@@ -179,3 +180,5 @@ class Dog {
     );
   }
 }
+
+
