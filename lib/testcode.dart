@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:thedogs/firebase_authentication/firebase_auth.dart';
 
 
 class Dog {
@@ -113,7 +114,7 @@ class _MyApp2State extends State<MyApp2> {
 
   // post data
   Future<void> _addToFavorites(String dogId) async {
-    final FirebaseAuth auth = FirebaseAuth.instance;
+    final FirebaseAuthService auth = FirebaseAuth.instance;
 
     // Kiểm tra người dùng đã đăng nhập
     final User? user = auth.currentUser;
@@ -295,7 +296,7 @@ class _MyApp2State extends State<MyApp2> {
                                   TextButton(
                                     onPressed: () {
                                       print(dog.id);
-                                      _addToFavorites(dog.id);
+                                      // _addToFavorites(dog.id);
                                     },
                                     //call api - post
                                     child: const Column(
