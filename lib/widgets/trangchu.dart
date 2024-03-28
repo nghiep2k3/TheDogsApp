@@ -38,10 +38,10 @@ class MyContent extends StatelessWidget {
                     const SizedBox(height: 20), // Khoảng cách giữa các nút
                     ElevatedButton(
                       onPressed: () {
-                        Navigator.of(context).pushNamed("/testcode");
+                        Navigator.of(context).pushNamed("/infodogs");
                       },
                       child: const Text(
-                        "Test code",
+                        "Danh sách các loài chó",
                         style: TextStyle(
                           fontSize: 30,
                         ),
@@ -52,7 +52,7 @@ class MyContent extends StatelessWidget {
                         Navigator.of(context).pushNamed("/favorite");
                       },
                       child: const Text(
-                        "Favorites",
+                        "Danh sách yêu thích của tôi",
                         style: TextStyle(
                           fontSize: 30,
                         ),

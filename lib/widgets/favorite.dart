@@ -1,8 +1,11 @@
+// ignore_for_file: use_build_context_synchronously
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 class FavoritesDogsPage extends StatefulWidget {
+  const FavoritesDogsPage({super.key});
+
   @override
   _FavoritesDogsPageState createState() => _FavoritesDogsPageState();
 }
@@ -15,21 +18,26 @@ class _FavoritesDogsPageState extends State<FavoritesDogsPage> {
     User? user = _auth.currentUser;
     if (user == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('You must be logged in to remove favorites')),
+        const SnackBar(
+            content: Text('You must be logged in to remove favorites')),
       );
       return;
     }
     try {
-      await FirebaseFirestore.instance.collection('users').doc(user.uid).collection(
-          docId); // Sử dụng docId được truyền vào để xác định document cần xóa.
-      // .delete()
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(user.uid)
+          .collection('favorites')
+          .doc(docId)
+          .delete();
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Meal successfully removed from favorites')),
-      );
+      // ScaffoldMessenger.of(context).showSnackBar(
+      //   const SnackBar(
+      //       content: Text('Xóa thành công')),
+      // );
     } catch (error) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to remove meal: $error')),
+        SnackBar(content: Text('Lỗi ?: $error')),
       );
     }
   }
@@ -42,22 +50,26 @@ class _FavoritesDogsPageState extends State<FavoritesDogsPage> {
         .doc(user.uid)
         .collection('favorites')
         .get();
-    return querySnapshot.docs
-        .map((doc) => doc.data() as Map<String, dynamic>)
-        .toList();
+    List<Map<String, dynamic>> favoritesList = [];
+    querySnapshot.docs.forEach((doc) {
+      Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+      data['docId'] = doc.id;
+      favoritesList.add(data);
+    });
+    return favoritesList;
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Favorites Dogs List'),
+        title: const Text('Favorites Dogs List'),
       ),
       body: FutureBuilder<List<Map<String, dynamic>>>(
         future: _getFavoritesDogs(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator());
+            return const Center(child: CircularProgressIndicator());
           }
 
           if (snapshot.hasError) {
@@ -65,7 +77,7 @@ class _FavoritesDogsPageState extends State<FavoritesDogsPage> {
           }
 
           if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return Center(child: Text('No favorite dogs found.'));
+            return const Center(child: Text('No favorite dogs found.'));
           }
 
           List<Map<String, dynamic>> dogsList = snapshot.data!;
@@ -80,24 +92,25 @@ class _FavoritesDogsPageState extends State<FavoritesDogsPage> {
                 key: Key(dog.id), // Đảm bảo rằng key là duy nhất cho mỗi item.
                 direction: DismissDirection.endToStart,
                 onDismissed: (direction) async {
-                  await _removeDogFromFirestore(
-                      dog.id); // Giả định rằng dog.id là ID của document.
+                  await _removeDogFromFirestore(dogData[
+                      'docId']); // Sử dụng docId của document để xóa khỏi Firestore
                   setState(() {
                     dogsList.removeAt(
                         index); // Xóa chó khỏi danh sách được hiển thị.
                   });
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
-                      content: Text('Removed ${dog.name} from favorites'),
-                      duration: Duration(seconds: 2),
+                      content: Text('Đã xóa con ${dog.name} từ mục yêu thích'),
+                      duration: const Duration(seconds: 2),
                     ),
                   );
                 },
+
                 background: Container(
                   color: Colors.blueAccent,
-                  padding: EdgeInsets.symmetric(horizontal: 20),
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
                   alignment: AlignmentDirectional.centerEnd,
-                  child: Icon(Icons.delete, color: Colors.white),
+                  child: const Icon(Icons.delete, color: Colors.white),
                 ),
                 child: Card(
                   child: Padding(
@@ -113,23 +126,30 @@ class _FavoritesDogsPageState extends State<FavoritesDogsPage> {
                         ),
                         Row(
                           children: [
-                            Icon(Icons.hourglass_full),
-                            SizedBox(width: 8),
+                            const Icon(Icons.hourglass_full),
+                            const SizedBox(width: 8),
                             Text('Life Span: ${dog.lifeSpan}'),
                           ],
                         ),
                         Row(
                           children: [
-                            Icon(Icons.monitor_weight_outlined),
-                            SizedBox(width: 8),
+                            const Icon(Icons.monitor_weight_outlined),
+                            const SizedBox(width: 8),
                             Text('Weight: ${dog.weight}'),
                           ],
                         ),
                         Row(
                           children: [
-                            Icon(Icons.height),
-                            SizedBox(width: 8),
+                            const Icon(Icons.height),
+                            const SizedBox(width: 8),
                             Text('Height: ${dog.height}'),
+                          ],
+                        ),
+                        Row(
+                          children: [
+                            const Icon(Icons.document_scanner_outlined),
+                            const SizedBox(width: 8),
+                            Text('Docid: ${dogData['docId']}'),
                           ],
                         ),
                       ],

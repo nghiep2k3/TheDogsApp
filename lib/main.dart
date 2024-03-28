@@ -51,8 +51,7 @@ class MyApp extends StatelessWidget {
             "/login": (context) => MyLogin(),
             "/settings": (context) => MySettings(),
             "/favorite": (context) => FavoritesDogsPage(),
-            "/testcode": (context) => const MyApp2(),
-
+            "/infodogs": (context) => const MyApp2(),
           }),
     );
   }

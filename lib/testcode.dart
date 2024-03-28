@@ -6,7 +6,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:thedogs/widgets/Action/Chi_tiet.dart';
 
-
 class Dog {
   final String name;
   final String id;
@@ -63,7 +62,8 @@ class _MyApp2State extends State<MyApp2> {
   int _limit = 6;
   int likeCount = 1;
 
-  String apiKey = 'live_K9uSZYz4F58HqbFbcoxswpRHd2INjIkoNyiUjDcOMLsxE6Mr56RzgBPSrJ8b1l5A';
+  String apiKey =
+      'live_K9uSZYz4F58HqbFbcoxswpRHd2INjIkoNyiUjDcOMLsxE6Mr56RzgBPSrJ8b1l5A';
 
   @override
   void initState() {
@@ -95,37 +95,35 @@ class _MyApp2State extends State<MyApp2> {
       _filteredDogs = query.isEmpty
           ? _dogs
           : _dogs
-          .where(
-              (dog) => dog.name.toLowerCase().contains(query.toLowerCase()))
-          .toList();
+              .where(
+                  (dog) => dog.name.toLowerCase().contains(query.toLowerCase()))
+              .toList();
     });
   }
 
   // post data
   void _addToFavorites(Dog dog) async {
     String userUID = FirebaseAuth.instance.currentUser!.uid;
+    print(userUID);
 
-    FirebaseFirestore.instance.collection('users').doc(userUID).collection('favorites').add(dog.toJson())
+    FirebaseFirestore.instance
+        .collection('users')
+        .doc(userUID)
+        .collection('favorites')
+        .add(dog.toJson())
         .then((value) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Added to Favorites')),
+        SnackBar(content: Text('Thêm thành công')),
       );
-    })
-        .catchError((error) {
+    }).catchError((error) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Failed to add to favorites: $error')),
       );
     });
   }
 
-
-
   // hiển thị chi tiết thông tin
-  void _showDogDetails(Dog dog) {
-
-  }
-
-
+  void _showDogDetails(Dog dog) {}
 
   @override
   Widget build(BuildContext context) {
@@ -154,129 +152,130 @@ class _MyApp2State extends State<MyApp2> {
           Expanded(
             child: _isLoading
                 ? const Center(
-              child:
-              CircularProgressIndicator(), // Hiển thị nút quay tròn khi đang tải dữ liệu
-            )
+                    child:
+                        CircularProgressIndicator(), // Hiển thị nút quay tròn khi đang tải dữ liệu
+                  )
                 : ListView.builder(
-              itemBuilder: (BuildContext context, int index) {
-                final dog = _filteredDogs[index];
-                return Padding(
-                  padding: const EdgeInsets.symmetric(
-                      vertical: 8.0, horizontal: 16.0),
-                  child: Container(
-                    width: double.infinity, // Khung có chiều ngang tối đa
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Colors.grey),
-                      borderRadius: BorderRadius.circular(5.0),
-                    ),
-                    child: Column(
-                      children: [
-                        ClipRRect(
-                          borderRadius: const BorderRadius.only(
-                            topLeft: Radius.circular(4.0),
-                            topRight: Radius.circular(4.0),
+                    itemBuilder: (BuildContext context, int index) {
+                      final dog = _filteredDogs[index];
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 8.0, horizontal: 16.0),
+                        child: Container(
+                          width: double.infinity, // Khung có chiều ngang tối đa
+                          decoration: BoxDecoration(
+                            border: Border.all(color: Colors.grey),
+                            borderRadius: BorderRadius.circular(5.0),
                           ),
-                          child: Image.network(
-                            dog.imageUrl, // Đường dẫn đến ảnh của chó
-                            fit: BoxFit
-                                .fill, // Ảnh sẽ lấp đầy khung theo chiều ngang
-                          ),
-                        ),
-                        const SizedBox(
-                            height: 10), // Khoảng cách giữa ảnh và tên
-                        Text(
-                          "Name: ${dog.name}", // Tên của chó
-                          style: const TextStyle(fontSize: 18),
-                          textAlign: TextAlign.center, // Căn giữa tên
-                        ),
-                        const SizedBox(height: 10),
-                        Row(
-                          mainAxisAlignment:
-                          MainAxisAlignment.spaceAround,
-                          children: [
-                            TextButton(
-                              onPressed: () {
-                                setState(() {
-                                  // Xử lý sự kiện khi người dùng nhấn vào nút "Vote"
-                                  // Tạm thời chỉ tăng số lượt thích ở giao diện, không lưu vào cơ sở dữ liệu
-                                  likeCount++; // Tăng số lượt thích của chó lên 1
-                                });
-                              },
-                              child: Column(
+                          child: Column(
+                            children: [
+                              ClipRRect(
+                                borderRadius: const BorderRadius.only(
+                                  topLeft: Radius.circular(4.0),
+                                  topRight: Radius.circular(4.0),
+                                ),
+                                child: Image.network(
+                                  dog.imageUrl, // Đường dẫn đến ảnh của chó
+                                  fit: BoxFit
+                                      .fill, // Ảnh sẽ lấp đầy khung theo chiều ngang
+                                ),
+                              ),
+                              const SizedBox(
+                                  height: 10), // Khoảng cách giữa ảnh và tên
+                              Text(
+                                "Name: ${dog.name}", // Tên của chó
+                                style: const TextStyle(fontSize: 18),
+                                textAlign: TextAlign.center, // Căn giữa tên
+                              ),
+                              const SizedBox(height: 10),
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceAround,
                                 children: [
-                                  Stack(
-                                    alignment: Alignment.center,
-                                    children: [
-                                      const FaIcon(
-                                        FontAwesomeIcons.heart,
-                                        color: Colors.red,
-                                        size: 27,
-                                      ),
-                                      Text(
-                                        '${likeCount}', // Hiển thị số lượt thích của chó
-                                        style: const TextStyle(
-                                          color: Colors.red,
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 12,
+                                  TextButton(
+                                    onPressed: () {
+                                      setState(() {
+                                        // Xử lý sự kiện khi người dùng nhấn vào nút "Vote"
+                                        // Tạm thời chỉ tăng số lượt thích ở giao diện, không lưu vào cơ sở dữ liệu
+                                        likeCount++; // Tăng số lượt thích của chó lên 1
+                                      });
+                                    },
+                                    child: Column(
+                                      children: [
+                                        Stack(
+                                          alignment: Alignment.center,
+                                          children: [
+                                            const FaIcon(
+                                              FontAwesomeIcons.heart,
+                                              color: Colors.red,
+                                              size: 27,
+                                            ),
+                                            Text(
+                                              '${likeCount}', // Hiển thị số lượt thích của chó
+                                              style: const TextStyle(
+                                                color: Colors.red,
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 12,
+                                              ),
+                                            ),
+                                          ],
                                         ),
-                                      ),
-                                    ],
+                                        const SizedBox(
+                                            height:
+                                                5), // Khoảng cách giữa biểu tượng và chữ
+                                        const Text("Vote"),
+                                      ],
+                                    ),
                                   ),
-                                  const SizedBox(
-                                      height:
-                                      5), // Khoảng cách giữa biểu tượng và chữ
-                                  const Text("Vote"),
+                                  TextButton(
+                                    onPressed: () {
+                                      print(dog);
+                                      _addToFavorites(dog);
+                                      //call api - post
+                                    },
+                                    child: const Column(
+                                      children: [
+                                        FaIcon(
+                                          FontAwesomeIcons.bookmark,
+                                          color: Colors.blue,
+                                          size: 25,
+                                        ),
+                                        SizedBox(
+                                            height:
+                                                5), // Khoảng cách giữa biểu tượng và chữ
+                                        Text("Favourites"),
+                                      ],
+                                    ),
+                                  ),
+                                  TextButton(
+                                    onPressed: () {
+                                      showDogDetails(context,
+                                          dog); // Hiển thị thông tin chi tiết khi nhấn vào nút "Chi tiết"
+                                    },
+                                    child: const Column(
+                                      children: [
+                                        FaIcon(
+                                          FontAwesomeIcons.circleInfo,
+                                          color: Colors.blue,
+                                          size: 25,
+                                        ),
+                                        SizedBox(
+                                            height:
+                                                5), // Khoảng cách giữa biểu tượng và chữ
+                                        Text("Chi tiết"),
+                                      ],
+                                    ),
+                                  ),
                                 ],
                               ),
-                            ),
-                            TextButton(
-                              onPressed: () {
-                                print(dog);
-                                _addToFavorites(dog);
-                                //call api - post
-                              },
-                              child: const Column(
-                                children: [
-                                  FaIcon(
-                                    FontAwesomeIcons.bookmark,
-                                    color: Colors.blue,
-                                    size: 25,
-                                  ),
-                                  SizedBox(
-                                      height:
-                                      5), // Khoảng cách giữa biểu tượng và chữ
-                                  Text("Favourites"),
-                                ],
-                              ),
-                            ),
-                            TextButton(
-                              onPressed: () {
-                                showDogDetails(context, dog); // Hiển thị thông tin chi tiết khi nhấn vào nút "Chi tiết"
-                              },
-                              child: const Column(
-                                children: [
-                                  FaIcon(
-                                    FontAwesomeIcons.circleInfo,
-                                    color: Colors.blue,
-                                    size: 25,
-                                  ),
-                                  SizedBox(
-                                      height:
-                                      5), // Khoảng cách giữa biểu tượng và chữ
-                                  Text("Chi tiết"),
-                                ],
-                              ),
-                            ),
-                          ],
+                              // Khoảng cách giữa tên và ID
+                            ],
+                          ),
                         ),
-                        // Khoảng cách giữa tên và ID
-                      ],
-                    ),
+                      );
+                    },
+                    itemCount: _filteredDogs.length,
                   ),
-                );
-              },
-              itemCount: _filteredDogs.length,
-            ),
           ),
         ],
       ),
@@ -303,7 +302,7 @@ class _MyApp2State extends State<MyApp2> {
                 setState(() {
                   _page++; // Tăng trang
                   _isLoading =
-                  true; // Cập nhật giá trị của _isLoading thành true
+                      true; // Cập nhật giá trị của _isLoading thành true
                   fetchData(); // Tải dữ liệu mới
                 });
               },
@@ -313,7 +312,7 @@ class _MyApp2State extends State<MyApp2> {
               value: _limit,
               items: List.generate(
                 10,
-                    (index) => DropdownMenuItem<int>(
+                (index) => DropdownMenuItem<int>(
                   value: index + 1,
                   child: Text((index + 1).toString()),
                 ),
