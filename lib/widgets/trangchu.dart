@@ -74,14 +74,16 @@ class _MyContentState extends State<MyContent> {
                                                   : Colors.black),
                                         )
                                       : RichText(
-                                          text: const TextSpan(children: [
+                                          text: TextSpan(children: [
                                           TextSpan(
                                               text: "Dương",
                                               style: TextStyle(
                                                   fontSize: 20,
-                                                  color: Colors.black)),
-                                          TextSpan(text: '  '),
-                                          TextSpan(
+                                                  color: ui.isDarkMode
+                                                      ? Colors.white
+                                                      : Colors.black)),
+                                          const TextSpan(text: '  '),
+                                          const TextSpan(
                                               text: '👋',
                                               style: TextStyle(fontSize: 20))
                                         ]))

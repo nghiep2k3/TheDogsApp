@@ -78,7 +78,7 @@ class _BreedDetailState extends State<BreedDetail> {
     });
   }
 
-  void _addToFavorites(Dog dog) async {
+  Future<void> _addToFavorites(Dog dog) async {
     String userUID = FirebaseAuth.instance.currentUser!.uid;
     print(userUID);
     FirebaseFirestore.instance
@@ -99,7 +99,7 @@ class _BreedDetailState extends State<BreedDetail> {
     });
   }
 
-  void _deleteFavorite(String docId) async {
+  Future<void> _deleteFavorite(String docId) async {
     FirebaseFirestore.instance
         .collection('users')
         .doc(userUID)
@@ -172,14 +172,16 @@ class _BreedDetailState extends State<BreedDetail> {
                                         fontWeight: FontWeight.w600),
                                   ),
                                   IconButton(
-                                    onPressed: () {
-                                      if (favorites.isEmpty ||
-                                          !favorites
-                                              .map((item) => item['id'])
-                                              .contains(breed[
-                                                  'reference_image_id']) ||
-                                          _isFavorite) {
-                                        _addToFavorites(Dog(
+                                    onPressed: () async {
+                                      bool isFavoriteExist = favorites
+                                          .map((item) => item['id'])
+                                          .contains(
+                                              breed['reference_image_id']);
+                                      if (isFavoriteExist || _isFavorite) {
+                                        await _deleteFavorite(
+                                            breed['reference_image_id']);
+                                      } else {
+                                        await _addToFavorites(Dog(
                                           name: breed['name'],
                                           id: breed['reference_image_id'],
                                           imageUrl:
@@ -188,16 +190,30 @@ class _BreedDetailState extends State<BreedDetail> {
                                           weight: breed['weight']['metric'],
                                           height: breed['height']['metric'],
                                         ));
-                                        setState(() {
-                                          _isFavorite = true;
-                                        });
-                                      } else {
-                                        _deleteFavorite(
-                                            breed['reference_image_id']);
-                                        setState(() {
-                                          _isFavorite = false;
-                                        });
                                       }
+                                      //   if (favorites.isEmpty ||
+                                      //       !favorites
+                                      //           .map((item) => item['id'])
+                                      //           .contains(breed[
+                                      //               'reference_image_id']) ||
+                                      //       _isFavorite) {
+                                      //     _addToFavorites(Dog(
+                                      //       name: breed['name'],
+                                      //       id: breed['reference_image_id'],
+                                      //       imageUrl:
+                                      //           'https://cdn2.thedogapi.com/images/${breed['reference_image_id']}.jpg',
+                                      //       lifeSpan: breed['life_span'],
+                                      //       weight: breed['weight']['metric'],
+                                      //       height: breed['height']['metric'],
+                                      //     ));
+                                      //   } else {
+                                      //     _deleteFavorite(
+                                      //         breed['reference_image_id']);
+                                      //   }
+                                      setState(() {
+                                        _isFavorite =
+                                            !isFavoriteExist && !_isFavorite;
+                                      });
                                     },
                                     icon: Icon(
                                       (favorites

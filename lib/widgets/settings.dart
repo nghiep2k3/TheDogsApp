@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:thedogs/firebase_authentication/firebase_auth.dart';
 
 import '/models/user_interface.dart';
@@ -6,7 +7,7 @@ import 'package:provider/provider.dart';
 
 class MySettings extends StatelessWidget {
   MySettings({super.key});
-  FirebaseAuthService _auth = FirebaseAuthService();
+  final FirebaseAuth _auth = FirebaseAuth.instance;
   @override
   Widget build(BuildContext context) {
     return Consumer<UserInterface>(builder: (context, ui, child) {
@@ -60,7 +61,7 @@ class MySettings extends StatelessWidget {
                           TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
                     ),
                     Text(
-                      "a.nguyenvan@gmail.com",
+                      "${_auth.currentUser!.email}",
                       style: TextStyle(
                           fontSize: 16,
                           color: ui.isDarkMode ? Colors.white : Colors.grey),
@@ -196,7 +197,22 @@ class MySettings extends StatelessWidget {
               await _auth.signOut();
               Navigator.of(context).popAndPushNamed("/start");
             },
-            child: Text("Đăng xuất")),
+            style: ButtonStyle(
+                padding: MaterialStateProperty.all(
+                    const EdgeInsets.symmetric(horizontal: 40, vertical: 20)),
+                shape: MaterialStateProperty.all(RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10))),
+                backgroundColor: MaterialStateProperty.all(Colors.red),
+                foregroundColor: MaterialStateProperty.all(Colors.white),
+                surfaceTintColor: MaterialStateProperty.all(Colors.transparent),
+                shadowColor: MaterialStateProperty.all(Colors.transparent),
+                overlayColor:
+                    MaterialStateProperty.all(Colors.red.withOpacity(0.8)),
+                elevation: MaterialStateProperty.all(0)),
+            child: const Text(
+              "Đăng xuất",
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+            )),
         floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
         // appBar: AppBar(
         //   title: Text("Settings"),
