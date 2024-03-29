@@ -1,7 +1,10 @@
 import 'dart:io';
+import 'package:thedogs/start.dart';
 import 'package:thedogs/testcode.dart';
 import 'package:thedogs/widgets/breed_detail.dart';
 import 'package:thedogs/widgets/list_breeds.dart';
+import 'package:thedogs/widgets/Action/breed_group.dart';
+import 'package:thedogs/widgets/trangchu.dart';
 import 'package:thedogs/widgets/login.dart';
 import 'package:thedogs/widgets/register.dart';
 import 'package:thedogs/widgets/settings.dart';
@@ -9,6 +12,7 @@ import '/widgets/homepage.dart';
 import '/models/user_interface.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:thedogs/widgets/favorite.dart';
 import "package:firebase_core/firebase_core.dart";
 
 Future<void> main() async {
@@ -16,14 +20,14 @@ Future<void> main() async {
 
   Platform.isAndroid
       ? await Firebase.initializeApp(
-          options: FirebaseOptions(
+          options: const FirebaseOptions(
               apiKey: 'AIzaSyCS_ZQEmoELru-nnwn6zBvNYvOl4aYkSBo',
               appId: '1:535748379503:android:dcff86b01d42e3d1bf9e9a',
               messagingSenderId: '535748379503',
               projectId: 'flutter-218e8'))
       : await Firebase.initializeApp();
 
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -38,7 +42,9 @@ class MyApp extends StatelessWidget {
           theme: ThemeData(fontFamily: 'Nunito'),
           initialRoute: "/",
           routes: {
-            "/": (context) => const MyHomePage(),
+            "/": (context) => MyContent(),
+            "/start": (context) => SlideshowPage(),
+            "/breed": (context) => BreedGroupScreen(),
             "/register": (context) => MyRegister(),
             "/login": (context) => MyLogin(),
             "/settings": (context) => MySettings(),
@@ -46,6 +52,8 @@ class MyApp extends StatelessWidget {
             "/homepage": (context) => const MyHomePage(),
             "/list_breeds": (context) => const ListBreeds(),
             "/breed_detail": (context) => const BreedDetail(),
+            "/favorite": (context) => FavoritesDogsPage(),
+            "/infodogs": (context) => const MyApp2(),
           }),
     );
   }

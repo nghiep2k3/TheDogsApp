@@ -2,6 +2,9 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:thedogs/widgets/Action/Chi_tiet.dart';
 
 class Dog {
   final String name;
@@ -19,6 +22,17 @@ class Dog {
     required this.weight,
     required this.height,
   });
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'name': name,
+      'lifeSpan': lifeSpan,
+      'height': height,
+      'weight': weight,
+      'imageUrl': imageUrl,
+    };
+  }
 
   factory Dog.fromJson(Map<String, dynamic> json) {
     return Dog(
@@ -48,6 +62,9 @@ class _MyApp2State extends State<MyApp2> {
   int _limit = 6;
   int likeCount = 1;
 
+  String apiKey =
+      'live_K9uSZYz4F58HqbFbcoxswpRHd2INjIkoNyiUjDcOMLsxE6Mr56RzgBPSrJ8b1l5A';
+
   @override
   void initState() {
     super.initState();
@@ -55,8 +72,7 @@ class _MyApp2State extends State<MyApp2> {
   }
 
   Future<void> fetchData() async {
-    const apiKey =
-        'live_K9uSZYz4F58HqbFbcoxswpRHd2INjIkoNyiUjDcOMLsxE6Mr56RzgBPSrJ8b1l5A';
+    // const Key = apiKey;
     final response = await http.get(
       Uri.parse(
           'https://api.thedogapi.com/v1/images/search?size=med&mime_types=jpg&format=json&has_breeds=true&order=ASC&page=$_page&limit=$_limit&include_breeds=1'),
@@ -85,38 +101,29 @@ class _MyApp2State extends State<MyApp2> {
     });
   }
 
-  void _showDogDetails(Dog dog) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text(
-            '${dog.name}',
-            textAlign: TextAlign.center,
-          ),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Image.network(dog.imageUrl),
-              Text('Mã : ${dog.id}'),
-              Text('Tuổi thọ: ${dog.lifeSpan}'),
-              Text('Chiều cao: ${dog.height} cm'),
-              Text('Cân nặng: ${dog.weight} kg'),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text('Đóng'),
-            ),
-          ],
-        );
-      },
-    );
+  // post data
+  void _addToFavorites(Dog dog) async {
+    String userUID = FirebaseAuth.instance.currentUser!.uid;
+    print(userUID);
+
+    FirebaseFirestore.instance
+        .collection('users')
+        .doc(userUID)
+        .collection('favorites')
+        .add(dog.toJson())
+        .then((value) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Thêm thành công')),
+      );
+    }).catchError((error) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to add to favorites: $error')),
+      );
+    });
   }
+
+  // hiển thị chi tiết thông tin
+  void _showDogDetails(Dog dog) {}
 
   @override
   Widget build(BuildContext context) {
@@ -222,7 +229,9 @@ class _MyApp2State extends State<MyApp2> {
                                   ),
                                   TextButton(
                                     onPressed: () {
-                                      // Xử lý sự kiện khi nhấn vào nút "Favourites"
+                                      print(dog);
+                                      _addToFavorites(dog);
+                                      //call api - post
                                     },
                                     child: const Column(
                                       children: [
@@ -240,7 +249,7 @@ class _MyApp2State extends State<MyApp2> {
                                   ),
                                   TextButton(
                                     onPressed: () {
-                                      _showDogDetails(
+                                      showDogDetails(context,
                                           dog); // Hiển thị thông tin chi tiết khi nhấn vào nút "Chi tiết"
                                     },
                                     child: const Column(
@@ -253,7 +262,7 @@ class _MyApp2State extends State<MyApp2> {
                                         SizedBox(
                                             height:
                                                 5), // Khoảng cách giữa biểu tượng và chữ
-                                        Text("Chi tiết"),
+                                        Text("Chi tiết" ),
                                       ],
                                     ),
                                   ),

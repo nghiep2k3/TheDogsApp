@@ -1,22 +1,19 @@
 import 'package:carousel_slider/carousel_slider.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:provider/provider.dart';
 import 'package:thedogs/api/api_call.dart';
 import 'package:thedogs/models/user_interface.dart';
 import 'package:thedogs/widgets/components/breeds.dart';
-import 'package:thedogs/widgets/list_breeds.dart';
-import '../widgets/content.dart';
-import '../widgets/trangchu.dart';
+import '../firebase_authentication/firebase_auth.dart';
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key});
-
+class MyContent extends StatefulWidget {
   @override
-  State<MyHomePage> createState() => _MyHomePageState();
+  State<MyContent> createState() => _MyContentState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
+class _MyContentState extends State<MyContent> {
+  FirebaseAuthService _auth = FirebaseAuthService();
   List _randomImage = [];
   @override
   void initState() {
@@ -40,9 +37,12 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<User?>(
-        stream: FirebaseAuth.instance.authStateChanges(),
-        builder: (context, snapshot) {
+      stream: FirebaseAuth.instance.authStateChanges(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.active) {
+          // Kiểm tra liệu có dữ liệu người dùng hay không
           if (snapshot.hasData) {
+            // Người dùng đã đăng nhập, hiển thị nội dung
             final width = MediaQuery.of(context).size.width;
             // fetchData();
             // print(_randomImage);
@@ -122,9 +122,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         surfaceTintColor: Colors.transparent,
                         foregroundColor: Colors.blue,
                         shadowColor: Colors.transparent,
-                        iconTheme: IconThemeData(
-                          color: ui.isDarkMode ? Colors.white : Colors.black,
-                        ),
+                        automaticallyImplyLeading: false,
                       ),
                       body: DefaultTextStyle.merge(
                           style: TextStyle(
@@ -394,7 +392,7 @@ class _MyHomePageState extends State<MyHomePage> {
                             ),
                             IconButton(
                               onPressed: () {
-                                Navigator.of(context).pushNamed("/list_breeds");
+                                Navigator.of(context).pushNamed("/infodogs");
                               },
                               icon: Icon(
                                 Icons.format_list_bulleted_outlined,
@@ -404,7 +402,9 @@ class _MyHomePageState extends State<MyHomePage> {
                               highlightColor: Colors.white,
                             ),
                             IconButton(
-                              onPressed: () {},
+                              onPressed: () {
+                                Navigator.of(context).pushNamed("/favorite");
+                              },
                               icon: Icon(
                                 Icons.favorite_outline,
                                 color:
@@ -433,65 +433,69 @@ class _MyHomePageState extends State<MyHomePage> {
                     );
                   });
             });
+            // return Scaffold(
+            //   appBar: AppBar(
+            //     title: const Text("Nội dung chính"),
+            //     backgroundColor: Colors.pink,
+            //   ),
+            //   body: Center(
+            //     child: Column(
+            //       mainAxisAlignment: MainAxisAlignment.center,
+            //       children: [
+            //         ElevatedButton(
+            //           onPressed: () async {
+            //             await _auth.signOut();
+            //             Navigator.of(context).popAndPushNamed("/");
+            //           },
+            //           child: const Text(
+            //             "Đăng xuất",
+            //             style: TextStyle(
+            //               fontSize: 30,
+            //             ),
+            //           ),
+            //         ),
+            //         const SizedBox(height: 20), // Khoảng cách giữa các nút
+            //         ElevatedButton(
+            //           onPressed: () {
+            //             Navigator.of(context).pushNamed("/infodogs");
+            //           },
+            //           child: const Text(
+            //             "Danh sách các loài chó",
+            //             style: TextStyle(
+            //               fontSize: 30,
+            //             ),
+            //           ),
+            //         ),
+            //         ElevatedButton(
+            //           onPressed: () {
+            //             Navigator.of(context).pushNamed("/favorite");
+            //           },
+            //           child: const Text(
+            //             "Danh sách yêu thích của tôi",
+            //             style: TextStyle(
+            //               fontSize: 30,
+            //             ),
+            //           ),
+            //         ),
+            //       ],
+            //     ),
+            //   ),
+            // );
+          } else {
+            // Người dùng chưa đăng nhập, chuyển hướng tới trang đăng nhập
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              //   Navigator.of(context).popAndPushNamed("/start");
+            });
+            // Trả về Container trống khi chờ chuyển hướng
+            return Container();
           }
-          return Scaffold(
-            appBar: AppBar(
-              title: Text("Welcome"),
-              backgroundColor: Colors.blueAccent,
-            ),
-            body: Container(
-              padding: EdgeInsets.all(16),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  FlutterLogo(size: 100),
-                  SizedBox(height: 48),
-                  Text(
-                    "The Dog App",
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.blueAccent,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                  SizedBox(height: 48),
-                  ElevatedButton(
-                    onPressed: () =>
-                        Navigator.of(context).popAndPushNamed("/register"),
-                    child: Padding(
-                      padding: const EdgeInsets.all(12.0),
-                      child: Text("Create Account",
-                          style: TextStyle(fontSize: 18)),
-                    ),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.green,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30),
-                      ),
-                    ),
-                  ),
-                  SizedBox(height: 12),
-                  ElevatedButton(
-                    onPressed: () =>
-                        Navigator.of(context).popAndPushNamed("/login"),
-                    child: Padding(
-                      padding: const EdgeInsets.all(12.0),
-                      child: Text("Log In", style: TextStyle(fontSize: 18)),
-                    ),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.orange,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
+        } else {
+          // Trả về một Widget chờ khi kết nối vẫn đang thiết lập
+          return Center(
+            child: CircularProgressIndicator(),
           );
-        });
+        }
+      },
+    );
   }
 }
-// }

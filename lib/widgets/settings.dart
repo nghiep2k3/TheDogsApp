@@ -1,9 +1,12 @@
+import 'package:thedogs/firebase_authentication/firebase_auth.dart';
+
 import '/models/user_interface.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class MySettings extends StatelessWidget {
-  const MySettings({super.key});
+  MySettings({super.key});
+  FirebaseAuthService _auth = FirebaseAuthService();
   @override
   Widget build(BuildContext context) {
     return Consumer<UserInterface>(builder: (context, ui, child) {
@@ -186,6 +189,13 @@ class MySettings extends StatelessWidget {
             ),
           ),
         ),
+        floatingActionButton: ElevatedButton(
+            onPressed: () async {
+              await _auth.signOut();
+              Navigator.of(context).popAndPushNamed("/start");
+            },
+            child: Text("Đăng xuất")),
+        floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
         // appBar: AppBar(
         //   title: Text("Settings"),
         //   backgroundColor: Colors.transparent,
