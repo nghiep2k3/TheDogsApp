@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:provider/provider.dart';
 import 'package:thedogs/api/api_call.dart';
 import 'package:thedogs/models/user_interface.dart';
+import 'package:thedogs/start.dart';
 import 'package:thedogs/widgets/components/breeds.dart';
 import '../firebase_authentication/firebase_auth.dart';
 
@@ -481,20 +482,23 @@ class _MyContentState extends State<MyContent> {
             //     ),
             //   ),
             // );
-          } else {
-            // Người dùng chưa đăng nhập, chuyển hướng tới trang đăng nhập
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              //   Navigator.of(context).popAndPushNamed("/start");
-            });
-            // Trả về Container trống khi chờ chuyển hướng
-            return Container();
           }
-        } else {
-          // Trả về một Widget chờ khi kết nối vẫn đang thiết lập
-          return Center(
-            child: CircularProgressIndicator(),
-          );
+          //   else {
+          //     // Người dùng chưa đăng nhập, chuyển hướng tới trang đăng nhập
+          //     WidgetsBinding.instance.addPostFrameCallback((_) {
+          //       Navigator.of(context).popAndPushNamed("/start");
+          //     });
+          //     // Trả về Container trống khi chờ chuyển hướng
+          //     // return Container();
+          //   }
         }
+        return SlideshowPage();
+        // else {
+        //   // Trả về một Widget chờ khi kết nối vẫn đang thiết lập
+        //   return Center(
+        //     child: CircularProgressIndicator(),
+        //   );
+        // }
       },
     );
   }

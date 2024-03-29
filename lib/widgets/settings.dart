@@ -139,7 +139,9 @@ class MySettings extends StatelessWidget {
                   ],
                 ),
                 ElevatedButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      Navigator.of(context).pushNamed("/favorite");
+                    },
                     style: ButtonStyle(
                       padding:
                           MaterialStateProperty.all(const EdgeInsets.all(0)),
