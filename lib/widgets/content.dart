@@ -3,7 +3,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import '../firebase_authentication/firebase_auth.dart';
 
 class MyContent extends StatelessWidget {
-
   FirebaseAuthService _auth = FirebaseAuthService();
 
   @override
@@ -13,7 +12,6 @@ class MyContent extends StatelessWidget {
         title: Text("Nội dung chính"),
         backgroundColor: Colors.pink,
       ),
-
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
