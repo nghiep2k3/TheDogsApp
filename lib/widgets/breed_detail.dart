@@ -124,6 +124,9 @@ class _BreedDetailState extends State<BreedDetail> {
     final height = MediaQuery.of(context).size.height;
     // return ;
     print(favorites);
+    bool isFavoriteExist = favorites
+        .map((item) => item['id'])
+        .contains(breed['reference_image_id']);
     return Consumer<UserInterface>(builder: (context, ui, child) {
       return Scaffold(
         //   appBar: AppBar(
@@ -173,10 +176,10 @@ class _BreedDetailState extends State<BreedDetail> {
                                   ),
                                   IconButton(
                                     onPressed: () async {
-                                      bool isFavoriteExist = favorites
-                                          .map((item) => item['id'])
-                                          .contains(
-                                              breed['reference_image_id']);
+                                      //   bool isFavoriteExist = favorites
+                                      //       .map((item) => item['id'])
+                                      //       .contains(
+                                      //           breed['reference_image_id']);
                                       if (isFavoriteExist || _isFavorite) {
                                         await _deleteFavorite(
                                             breed['reference_image_id']);
@@ -420,7 +423,49 @@ class _BreedDetailState extends State<BreedDetail> {
                               const SizedBox(height: 40),
                               Center(
                                 child: ElevatedButton(
-                                    onPressed: () {},
+                                    onPressed: () async {
+                                      //   bool isFavoriteExist = favorites
+                                      //       .map((item) => item['id'])
+                                      //       .contains(
+                                      //           breed['reference_image_id']);
+                                      if (isFavoriteExist || _isFavorite) {
+                                        await _deleteFavorite(
+                                            breed['reference_image_id']);
+                                      } else {
+                                        await _addToFavorites(Dog(
+                                          name: breed['name'],
+                                          id: breed['reference_image_id'],
+                                          imageUrl:
+                                              'https://cdn2.thedogapi.com/images/${breed['reference_image_id']}.jpg',
+                                          lifeSpan: breed['life_span'],
+                                          weight: breed['weight']['metric'],
+                                          height: breed['height']['metric'],
+                                        ));
+                                      }
+                                      //   if (favorites.isEmpty ||
+                                      //       !favorites
+                                      //           .map((item) => item['id'])
+                                      //           .contains(breed[
+                                      //               'reference_image_id']) ||
+                                      //       _isFavorite) {
+                                      //     _addToFavorites(Dog(
+                                      //       name: breed['name'],
+                                      //       id: breed['reference_image_id'],
+                                      //       imageUrl:
+                                      //           'https://cdn2.thedogapi.com/images/${breed['reference_image_id']}.jpg',
+                                      //       lifeSpan: breed['life_span'],
+                                      //       weight: breed['weight']['metric'],
+                                      //       height: breed['height']['metric'],
+                                      //     ));
+                                      //   } else {
+                                      //     _deleteFavorite(
+                                      //         breed['reference_image_id']);
+                                      //   }
+                                      setState(() {
+                                        _isFavorite =
+                                            !isFavoriteExist && !_isFavorite;
+                                      });
+                                    },
                                     style: ElevatedButton.styleFrom(
                                       backgroundColor: const Color(0xff9188e3),
                                       padding: const EdgeInsets.symmetric(
