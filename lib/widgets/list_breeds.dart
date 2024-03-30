@@ -1,10 +1,6 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:thedogs/api/api_call.dart';
-import 'package:thedogs/api/api_key.dart';
-import 'package:http/http.dart' as http;
 import 'package:thedogs/models/user_interface.dart';
 import 'package:thedogs/widgets/components/breeds.dart';
 
@@ -53,17 +49,20 @@ class _ListBreedsState extends State<ListBreeds> {
   @override
   Widget build(BuildContext context) {
     return Consumer<UserInterface>(
-      builder: (context, ui, child){
+      builder: (context, ui, child) {
         return Scaffold(
             appBar: AppBar(
               title: Text(
                 'Danh sách các loài chó',
-                style: TextStyle(color: ui.isDarkMode? Colors.white: Colors.black),
+                style: TextStyle(
+                    color: ui.isDarkMode ? Colors.white : Colors.black),
               ),
-              backgroundColor: ui.isDarkMode ? const Color(0xff8b8b8b): Colors.white,
-                surfaceTintColor: Colors.transparent,
-                shadowColor: Colors.transparent,
-              iconTheme: IconThemeData(color: ui.isDarkMode ? Colors.white: Colors.black),
+              backgroundColor:
+                  ui.isDarkMode ? const Color(0xff8b8b8b) : Colors.white,
+              surfaceTintColor: Colors.transparent,
+              shadowColor: Colors.transparent,
+              iconTheme: IconThemeData(
+                  color: ui.isDarkMode ? Colors.white : Colors.black),
             ),
             body: Container(
               color: ui.isDarkMode ? const Color(0xff8b8b8b) : Colors.white,

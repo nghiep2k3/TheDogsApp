@@ -2,9 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:thedogs/testcode.dart';
 
-
-
-
 void showDogDetails(BuildContext context, Dog dog) {
   showDialog(
     context: context,
@@ -18,7 +15,8 @@ void showDogDetails(BuildContext context, Dog dog) {
         child: Stack(
           children: <Widget>[
             Container(
-              padding: EdgeInsets.only(top: 100, bottom: 16, left: 16, right: 16),
+              padding:
+                  EdgeInsets.only(top: 100, bottom: 16, left: 16, right: 16),
               margin: EdgeInsets.only(top: 16),
               decoration: BoxDecoration(
                 color: Colors.white,
@@ -40,7 +38,8 @@ void showDogDetails(BuildContext context, Dog dog) {
                     leading: Icon(Icons.pets), // Thêm icon ở đầu thông tin
                     title: Text(
                       '${dog.name}',
-                      style: TextStyle(fontSize: 24, fontWeight: FontWeight.w700),
+                      style:
+                          TextStyle(fontSize: 24, fontWeight: FontWeight.w700),
                     ),
                   ),
                   ListTile(
@@ -90,7 +89,8 @@ void showDogDetails(BuildContext context, Dog dog) {
               child: CircleAvatar(
                 backgroundColor: Colors.blueAccent,
                 radius: 50,
-                backgroundImage: NetworkImage(dog.imageUrl), // Hiển thị hình ảnh của chó
+                backgroundImage:
+                    NetworkImage(dog.imageUrl), // Hiển thị hình ảnh của chó
               ),
             ),
           ],
@@ -99,4 +99,3 @@ void showDogDetails(BuildContext context, Dog dog) {
     },
   );
 }
-

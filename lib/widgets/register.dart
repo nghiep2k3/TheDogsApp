@@ -10,6 +10,7 @@ class MyRegister extends StatefulWidget {
 
 class _MyRegisterState extends State<MyRegister> {
   FirebaseAuthService _auth = FirebaseAuthService();
+  final TextEditingController _nameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   bool _isPasswordVisible = false; // Biến để quản lý hiển thị mật khẩu
@@ -24,7 +25,8 @@ class _MyRegisterState extends State<MyRegister> {
       body: Padding(
         padding: EdgeInsets.all(16.0), // Thêm padding vào body
         child: Center(
-          child: SingleChildScrollView( // Chỉnh lại layout và thêm cuộn
+          child: SingleChildScrollView(
+            // Chỉnh lại layout và thêm cuộn
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -34,7 +36,19 @@ class _MyRegisterState extends State<MyRegister> {
                   size: 120,
                   color: Colors.deepPurpleAccent,
                 ),
-                TextFormField( // Sử dụng TextFormField thay vì TextField
+                TextFormField(
+                  controller: _nameController,
+                  decoration: const InputDecoration(
+                    labelText: 'Tên',
+                    hintText: 'Nhập tên của bạn',
+                    border: OutlineInputBorder(),
+                    prefixIcon: Icon(Icons.person),
+                  ),
+                  textInputAction: TextInputAction.next,
+                ),
+                SizedBox(height: 20),
+                TextFormField(
+                  // Sử dụng TextFormField thay vì TextField
                   controller: _emailController,
                   decoration: InputDecoration(
                     labelText: 'Email',
@@ -43,12 +57,15 @@ class _MyRegisterState extends State<MyRegister> {
                     prefixIcon: Icon(Icons.email),
                   ),
                   keyboardType: TextInputType.emailAddress,
-                  autofillHints: [AutofillHints.email],
+                  //   autofillHints: [AutofillHints.email],
+                  textInputAction: TextInputAction.next,
                 ),
                 SizedBox(height: 20),
-                TextFormField( // Thêm TextFormField cho mật khẩu
+                TextFormField(
+                  // Thêm TextFormField cho mật khẩu
                   controller: _passwordController,
-                  obscureText: !_isPasswordVisible, // Ẩn mật khẩu dựa vào trạng thái của _isPasswordVisible
+                  obscureText:
+                      !_isPasswordVisible, // Ẩn mật khẩu dựa vào trạng thái của _isPasswordVisible
                   decoration: InputDecoration(
                     labelText: 'Mật khẩu',
                     hintText: 'Nhập mật khẩu của bạn',
@@ -60,23 +77,30 @@ class _MyRegisterState extends State<MyRegister> {
                           : Icon(Icons.visibility_off),
                       onPressed: () {
                         setState(() {
-                          _isPasswordVisible = !_isPasswordVisible; // Thay đổi trạng thái hiển thị mật khẩu
+                          _isPasswordVisible =
+                              !_isPasswordVisible; // Thay đổi trạng thái hiển thị mật khẩu
                         });
                       },
                     ),
                   ),
+                  textInputAction: TextInputAction.send,
                 ),
                 SizedBox(height: 30),
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     foregroundColor: Colors.black,
-                    backgroundColor: Colors.yellow, // Màu của text và icon trên nút
-                    padding: EdgeInsets.symmetric(horizontal: 50, vertical: 20), // Padding cho nút
+                    backgroundColor:
+                        Colors.yellow, // Màu của text và icon trên nút
+                    padding: EdgeInsets.symmetric(
+                        horizontal: 50, vertical: 20), // Padding cho nút
                   ),
                   onPressed: () async {
                     User? user = await _auth.registerUserWithEmailAndPassword(
-                        _emailController.text, _passwordController.text
-                    );
+                        _emailController.text, _passwordController.text);
+                    final displayName = _nameController.text;
+                    if (user != null) {
+                      await user.updateDisplayName(displayName);
+                    }
 
                     if (user != null) {
                       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(

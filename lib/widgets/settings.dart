@@ -40,23 +40,52 @@ class MySettings extends StatelessWidget {
                 Column(
                   children: [
                     Center(
-                      child: SizedBox(
-                          width: 100,
-                          height: 100,
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(100),
-                            child: const Image(
-                              image:
-                                  AssetImage("lib/assets/images/image_avt.jpg"),
-                              fit: BoxFit.cover,
+                      child: _auth.currentUser!.photoURL == null
+                          ? Icon(
+                              Icons.account_circle,
+                              size: 100,
+                              color: ui.isDarkMode
+                                  ? Colors.white
+                                  : Colors.grey[300],
+                            )
+                          : Container(
+                              width: 100,
+                              height: 100,
+                              decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(100),
+                                  border: Border.all(
+                                      color: ui.isDarkMode
+                                          ? Colors.white
+                                          : const Color(0xff8b8b8b),
+                                      width: 1)),
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(100),
+                                child: Image.network(
+                                  _auth.currentUser!.photoURL!,
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
                             ),
-                          )),
+                      //   child: SizedBox(
+                      //       width: 100,
+                      //       height: 100,
+                      //       child: ClipRRect(
+                      //         borderRadius: BorderRadius.circular(100),
+                      //         child: const Image(
+                      //           image:
+                      //               AssetImage("lib/assets/images/image_avt.jpg"),
+                      //           fit: BoxFit.cover,
+                      //         ),
+                      //       )),
                     ),
                     const SizedBox(
                       height: 20,
                     ),
-                    const Text(
-                      'Nguyễn Văn A',
+                    Text(
+                      _auth.currentUser!.displayName == null
+                          ? _auth.currentUser!.email!
+                              .replaceAll('@gmail.com', '')
+                          : '${_auth.currentUser!.displayName}',
                       style:
                           TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
                     ),
@@ -70,7 +99,9 @@ class MySettings extends StatelessWidget {
                       height: 10,
                     ),
                     ElevatedButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        Navigator.of(context).pushNamed("/edit_profile");
+                      },
                       style: ButtonStyle(
                         padding: MaterialStateProperty.all(
                             const EdgeInsets.symmetric(
@@ -195,7 +226,7 @@ class MySettings extends StatelessWidget {
         floatingActionButton: ElevatedButton(
             onPressed: () async {
               await _auth.signOut();
-              Navigator.of(context).popAndPushNamed("/start");
+              Navigator.of(context).popAndPushNamed("/");
             },
             style: ButtonStyle(
                 padding: MaterialStateProperty.all(

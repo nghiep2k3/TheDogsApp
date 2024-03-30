@@ -49,7 +49,8 @@ class _MyLoginState extends State<MyLogin> {
                     prefixIcon: Icon(Icons.mail),
                   ),
                   keyboardType: TextInputType.emailAddress,
-                  autofillHints: const [AutofillHints.email],
+                  //   autofillHints: const [AutofillHints.email],
+                  textInputAction: TextInputAction.next,
                 ),
                 const SizedBox(height: 16),
                 // TextFormField cho mật khẩu đã được cập nhật với chức năng hiển thị/ẩn mật khẩu
@@ -62,7 +63,9 @@ class _MyLoginState extends State<MyLogin> {
                     suffixIcon: IconButton(
                       icon: Icon(
                         // Thay đổi icon dựa vào trạng thái hiển thị mật khẩu
-                        _isPasswordVisible ? Icons.visibility : Icons.visibility_off,
+                        _isPasswordVisible
+                            ? Icons.visibility
+                            : Icons.visibility_off,
                       ),
                       onPressed: () {
                         setState(() {
@@ -72,14 +75,14 @@ class _MyLoginState extends State<MyLogin> {
                     ),
                   ),
                   obscureText: !_isPasswordVisible,
-                  autofillHints: const [AutofillHints.password],
+                  //   autofillHints: const [AutofillHints.password],
+                  textInputAction: TextInputAction.send,
                 ),
                 const SizedBox(height: 24),
                 ElevatedButton(
                   onPressed: () async {
                     User? user = await _auth.loginUserWithEmailAndPassword(
-                        _emailController.text, _passwordController.text
-                    );
+                        _emailController.text, _passwordController.text);
 
                     if (user != null) {
                       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
@@ -102,7 +105,7 @@ class _MyLoginState extends State<MyLogin> {
                   ),
                   child: const Text(
                     "Đăng nhập",
-                    style: TextStyle(fontSize: 24,color: Colors.black),
+                    style: TextStyle(fontSize: 24, color: Colors.black),
                   ),
                 ),
                 const SizedBox(height: 16),

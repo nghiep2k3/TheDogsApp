@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:thedogs/start.dart';
 import 'package:thedogs/testcode.dart';
 import 'package:thedogs/widgets/breed_detail.dart';
+import 'package:thedogs/widgets/edit_profile.dart';
 import 'package:thedogs/widgets/list_breeds.dart';
 import 'package:thedogs/widgets/Action/breed_group.dart';
 import 'package:thedogs/widgets/trangchu.dart';
@@ -24,7 +25,8 @@ Future<void> main() async {
               apiKey: 'AIzaSyCS_ZQEmoELru-nnwn6zBvNYvOl4aYkSBo',
               appId: '1:535748379503:android:dcff86b01d42e3d1bf9e9a',
               messagingSenderId: '535748379503',
-              projectId: 'flutter-218e8'))
+              projectId: 'flutter-218e8',
+              storageBucket: 'gs://flutter-218e8.appspot.com'))
       : await Firebase.initializeApp();
 
   runApp(const MyApp());
@@ -54,6 +56,7 @@ class MyApp extends StatelessWidget {
             "/breed_detail": (context) => const BreedDetail(),
             "/favorite": (context) => FavoritesDogsPage(),
             "/infodogs": (context) => const MyApp2(),
+            "/edit_profile": (context) => const EditProfile(),
           }),
     );
   }
